@@ -1,15 +1,13 @@
-<!DOCTYPE html>
+d<!DOCTYPE html>
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Neon Face & Hand Scanner</title>
+<title>NEON TRACKER // PERFORMANCE</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html, body {
     margin: 0;
@@ -20,7 +18,7 @@ html, body {
     font-family: Consolas, monospace;
 }
 
-/* Camera există pentru AI, dar NU este vizibilă */
+/* Camera există doar pentru AI */
 #camera {
     position: fixed;
     width: 1px;
@@ -29,85 +27,75 @@ html, body {
     pointer-events: none;
 }
 
-/* Canvas-ul cu tracking */
 #canvas {
     position: fixed;
     inset: 0;
-
     width: 100%;
     height: 100%;
-
-    object-fit: cover;
-
-    /* efect oglindă */
     transform: scaleX(-1);
-
-    z-index: 2;
 }
 
-/* HUD */
 .hud {
     position: fixed;
     z-index: 10;
+    padding: 12px 15px;
 
     color: #00ff9d;
-
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0,0,0,.8);
 
     border: 1px solid #00ff9d;
 
-    padding: 14px 18px;
-
-    box-shadow:
-        0 0 10px rgba(0,255,157,.5),
-        inset 0 0 10px rgba(0,255,157,.1);
-
-    backdrop-filter: blur(5px);
+    font-size: 13px;
 }
 
-#topLeft {
-    top: 18px;
-    left: 18px;
+#left {
+    top: 15px;
+    left: 15px;
 }
 
-#topRight {
-    top: 18px;
-    right: 18px;
+#right {
+    top: 15px;
+    right: 15px;
     text-align: right;
 }
 
 .title {
-    font-size: 19px;
+    font-size: 17px;
     font-weight: bold;
-    letter-spacing: 3px;
-}
-
-.small {
-    margin-top: 6px;
-    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
 }
 
 #status {
-    color: #ff375f;
+    margin-top: 5px;
 }
 
-/* Scan line */
-#scanline {
+#message {
     position: fixed;
+    z-index: 10;
 
-    z-index: 4;
+    bottom: 25px;
+    left: 50%;
 
-    left: 0;
+    transform: translateX(-50%);
+
+    color: #00ff9d;
+
+    letter-spacing: 4px;
+    font-size: 14px;
+
+    white-space: nowrap;
+}
+
+/* scanline foarte simplă */
+#scan {
+    position: fixed;
+    z-index: 5;
 
     width: 100%;
-    height: 2px;
+    height: 1px;
 
-    background: #00ff9d;
-
-    box-shadow:
-        0 0 6px #00ff9d,
-        0 0 15px #00ff9d,
-        0 0 30px #00ff9d;
+    background: rgba(0,255,157,.6);
 
     animation: scan 3s linear infinite;
 
@@ -115,150 +103,64 @@ html, body {
 }
 
 @keyframes scan {
-
-    0% {
-        top: 0%;
-        opacity: .2;
-    }
-
-    50% {
-        top: 100%;
-        opacity: 1;
-    }
-
-    100% {
-        top: 0%;
-        opacity: .2;
-    }
-}
-
-/* Mesaj jos */
-#message {
-    position: fixed;
-
-    z-index: 10;
-
-    bottom: 30px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    color: #00ff9d;
-
-    font-size: 16px;
-
-    letter-spacing: 4px;
-
-    text-shadow:
-        0 0 5px #00ff9d,
-        0 0 15px #00ff9d;
-
-    white-space: nowrap;
-}
-
-/* Colțuri HUD */
-.corner {
-    position: fixed;
-
-    z-index: 5;
-
-    width: 55px;
-    height: 55px;
-
-    pointer-events: none;
-}
-
-.c1 {
-    left: 15px;
-    bottom: 15px;
-
-    border-left: 2px solid #00ff9d;
-    border-bottom: 2px solid #00ff9d;
-}
-
-.c2 {
-    right: 15px;
-    bottom: 15px;
-
-    border-right: 2px solid #00ff9d;
-    border-bottom: 2px solid #00ff9d;
-}
-
-/* punct central */
-#target {
-    position: fixed;
-
-    z-index: 3;
-
-    left: 50%;
-    top: 50%;
-
-    width: 8px;
-    height: 8px;
-
-    border: 1px solid rgba(0,255,157,.3);
-    border-radius: 50%;
-
-    transform: translate(-50%, -50%);
+    from { top: 0%; }
+    to   { top: 100%; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Camera este ascunsă -->
 <video
     id="camera"
     autoplay
-    playsinline
-    muted>
+    muted
+    playsinline>
 </video>
 
-<!-- Aici desenăm fața și mâinile -->
 <canvas id="canvas"></canvas>
 
-<div id="scanline"></div>
+<div id="scan"></div>
 
-<div id="target"></div>
-
-<div id="topLeft" class="hud">
+<div id="left" class="hud">
 
     <div class="title">
-        NEON AI SCANNER
+        NEON TRACKER
     </div>
 
-    <div id="status" class="small">
-        ● INITIALIZING
+    <div id="status">
+        INITIALIZING...
     </div>
 
-    <div id="faceStatus" class="small">
+    <div id="face">
         FACE: --
     </div>
 
-    <div id="handStatus" class="small">
+    <div id="hands">
         HANDS: --
     </div>
 
 </div>
 
-<div id="topRight" class="hud">
+<div id="right" class="hud">
 
-    <div id="fps">
-        FPS: 0
+    <div id="displayFPS">
+        DISPLAY: 0 FPS
     </div>
 
-    <div id="fingerCount" class="small">
+    <div id="aiFPS">
+        AI: 0 FPS
+    </div>
+
+    <div id="fingers">
         FINGERS: 0
     </div>
 
 </div>
 
 <div id="message">
-    INITIALIZING AI
+    STARTING SYSTEM
 </div>
-
-<div class="corner c1"></div>
-<div class="corner c2"></div>
 
 
 <script type="module">
@@ -272,9 +174,26 @@ import {
 from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22-rc.20250304/+esm";
 
 
-/* ==========================
+/* ==============================
+   CONFIG PERFORMANCE
+================================ */
+
+const AI_INTERVAL = 80;
+
+/*
+80ms ≈ maxim 12.5 update-uri AI/sec.
+
+Dacă laptopul merge bine:
+60 = ~16 FPS AI
+
+Dacă merge greu:
+100 = ~10 FPS AI
+*/
+
+
+/* ==============================
    ELEMENTE
-========================== */
+================================ */
 
 const video =
     document.getElementById("camera");
@@ -283,51 +202,67 @@ const canvas =
     document.getElementById("canvas");
 
 const ctx =
-    canvas.getContext("2d");
+    canvas.getContext("2d", {
+        alpha: true
+    });
 
 
-const statusText =
+const statusEl =
     document.getElementById("status");
 
-const faceStatus =
-    document.getElementById("faceStatus");
+const faceEl =
+    document.getElementById("face");
 
-const handStatus =
-    document.getElementById("handStatus");
+const handsEl =
+    document.getElementById("hands");
 
-const fpsText =
-    document.getElementById("fps");
+const displayFPSEl =
+    document.getElementById("displayFPS");
 
-const fingerText =
-    document.getElementById("fingerCount");
+const aiFPSEl =
+    document.getElementById("aiFPS");
 
-const message =
+const fingersEl =
+    document.getElementById("fingers");
+
+const messageEl =
     document.getElementById("message");
 
 
-/* ==========================
-   AI
-========================== */
+/* ==============================
+   MODELE
+================================ */
 
 let faceLandmarker;
 let handLandmarker;
 
-let lastVideoTime = -1;
+
+/* ==============================
+   REZULTATE SALVATE
+================================ */
+
+let cachedFace = null;
+let cachedHands = [];
 
 
-/* ==========================
-   FPS
-========================== */
+/* ==============================
+   TIMING
+================================ */
 
-let frameCounter = 0;
+let lastAITime = 0;
 
-let lastFPSTime =
+let runFaceNext = true;
+
+let displayFrames = 0;
+let aiFrames = 0;
+
+let fpsTimer =
     performance.now();
 
 
-/* ==========================
-   CAMERA
-========================== */
+/* ==============================
+   CAMERA LOW RESOLUTION
+================================ */
 
 async function startCamera() {
 
@@ -337,14 +272,20 @@ async function startCamera() {
             video: {
 
                 width: {
-                    ideal: 1280
+                    ideal: 480
                 },
 
                 height: {
-                    ideal: 720
+                    ideal: 360
                 },
 
-                facingMode: "user"
+                frameRate: {
+                    ideal: 30,
+                    max: 30
+                },
+
+                facingMode:
+                    "user"
 
             },
 
@@ -366,14 +307,21 @@ async function startCamera() {
 
 
     await video.play();
+
+
+    canvas.width =
+        video.videoWidth;
+
+    canvas.height =
+        video.videoHeight;
 }
 
 
-/* ==========================
-   ÎNCĂRCARE MEDIAPIPE
-========================== */
+/* ==============================
+   MEDIAPIPE
+================================ */
 
-async function loadAI() {
+async function loadModels() {
 
     const vision =
         await FilesetResolver.forVisionTasks(
@@ -383,7 +331,9 @@ async function loadAI() {
         );
 
 
-    /* FACE */
+    /*
+       FACE
+    */
 
     faceLandmarker =
         await FaceLandmarker.createFromOptions(
@@ -402,16 +352,26 @@ async function loadAI() {
 
                 },
 
-                runningMode: "VIDEO",
+                runningMode:
+                    "VIDEO",
 
-                numFaces: 1
+                numFaces:
+                    1,
+
+                minFaceDetectionConfidence:
+                    0.5,
+
+                minTrackingConfidence:
+                    0.5
 
             }
 
         );
 
 
-    /* HANDS */
+    /*
+       HAND
+    */
 
     handLandmarker =
         await HandLandmarker.createFromOptions(
@@ -430,9 +390,17 @@ async function loadAI() {
 
                 },
 
-                runningMode: "VIDEO",
+                runningMode:
+                    "VIDEO",
 
-                numHands: 2
+                numHands:
+                    2,
+
+                minHandDetectionConfidence:
+                    0.5,
+
+                minTrackingConfidence:
+                    0.5
 
             }
 
@@ -440,108 +408,75 @@ async function loadAI() {
 }
 
 
-/* ==========================
-   CANVAS
-========================== */
+/* ==============================
+   FACE DRAW
+================================ */
 
-function resizeCanvas() {
+function drawFace(face) {
 
-    if (
-        canvas.width !== video.videoWidth ||
-        canvas.height !== video.videoHeight
-    ) {
+    if (!face)
+        return;
 
-        canvas.width =
-            video.videoWidth;
-
-        canvas.height =
-            video.videoHeight;
-
-    }
-}
-
-
-/* ==========================
-   DESENARE FAȚĂ
-========================== */
-
-function drawFace(landmarks) {
 
     const drawing =
         new DrawingUtils(ctx);
 
 
-    ctx.save();
+    /*
+       Fără shadowBlur!
+       Este mult mai rapid pe Intel HD.
+    */
 
-
-    ctx.shadowBlur =
-        10;
-
-    ctx.shadowColor =
-        "#ff00ff";
-
-
-    /* TRIUNGHIURI */
 
     drawing.drawConnectors(
 
-        landmarks,
+        face,
 
         FaceLandmarker
             .FACE_LANDMARKS_TESSELATION,
 
         {
-
             color:
-                "rgba(255,0,255,0.50)",
+                "rgba(255,0,255,.40)",
 
             lineWidth:
-                0.8
-
+                0.6
         }
 
     );
 
 
-    /* CONTUR */
-
     drawing.drawConnectors(
 
-        landmarks,
+        face,
 
         FaceLandmarker
             .FACE_LANDMARKS_FACE_OVAL,
 
         {
-
             color:
                 "#ff00ff",
 
             lineWidth:
-                2
-
+                1.5
         }
 
     );
 
 
-    /* OCHI */
-
     drawing.drawConnectors(
 
-        landmarks,
+        face,
 
         FaceLandmarker
             .FACE_LANDMARKS_LEFT_EYE,
 
         {
-
             color:
                 "#00ffff",
 
             lineWidth:
-                2
-
+                1.5
         }
 
     );
@@ -549,41 +484,17 @@ function drawFace(landmarks) {
 
     drawing.drawConnectors(
 
-        landmarks,
+        face,
 
         FaceLandmarker
             .FACE_LANDMARKS_RIGHT_EYE,
 
         {
-
-            color:
-                "#00ffff",
-
-            lineWidth:
-                2
-
-        }
-
-    );
-
-
-    /* SPRÂNCENE */
-
-    drawing.drawConnectors(
-
-        landmarks,
-
-        FaceLandmarker
-            .FACE_LANDMARKS_LEFT_EYEBROW,
-
-        {
-
             color:
                 "#00ffff",
 
             lineWidth:
                 1.5
-
         }
 
     );
@@ -591,135 +502,78 @@ function drawFace(landmarks) {
 
     drawing.drawConnectors(
 
-        landmarks,
-
-        FaceLandmarker
-            .FACE_LANDMARKS_RIGHT_EYEBROW,
-
-        {
-
-            color:
-                "#00ffff",
-
-            lineWidth:
-                1.5
-
-        }
-
-    );
-
-
-    /* BUZE */
-
-    drawing.drawConnectors(
-
-        landmarks,
+        face,
 
         FaceLandmarker
             .FACE_LANDMARKS_LIPS,
 
         {
-
             color:
                 "#ff375f",
 
             lineWidth:
-                2
-
+                1.5
         }
 
     );
-
-
-    ctx.restore();
-
 }
 
 
-/* ==========================
-   DESENARE MÂINI
-========================== */
+/* ==============================
+   HAND DRAW
+================================ */
 
-function drawHand(landmarks) {
+function drawHand(hand) {
 
     const drawing =
         new DrawingUtils(ctx);
 
 
-    ctx.save();
-
-
-    ctx.shadowBlur =
-        15;
-
-    ctx.shadowColor =
-        "#00ff9d";
-
-
-    /* LINII */
-
     drawing.drawConnectors(
 
-        landmarks,
+        hand,
 
         HandLandmarker
             .HAND_CONNECTIONS,
 
         {
-
             color:
                 "#00ff9d",
 
             lineWidth:
-                3
-
+                2
         }
 
     );
 
 
-    /* PUNCTE */
-
     drawing.drawLandmarks(
 
-        landmarks,
+        hand,
 
         {
-
             color:
-                "#ffffff",
+                "#00ff9d",
 
             fillColor:
                 "#00ff9d",
 
             radius:
-                3
-
+                2
         }
 
     );
-
-
-    ctx.restore();
-
 }
 
 
-/* ==========================
-   NUMĂR DEGETE
-========================== */
+/* ==============================
+   COUNT FINGERS
+================================ */
 
 function countFingers(hand) {
 
     let count = 0;
 
-
-    /*
-       INDEX
-       MIJLOCIU
-       INELAR
-       MIC
-    */
 
     const fingers = [
 
@@ -735,52 +589,41 @@ function countFingers(hand) {
 
 
     for (
-        const [tip, joint]
+        const [tip, pip]
         of fingers
     ) {
 
         if (
             hand[tip].y <
-            hand[joint].y
+            hand[pip].y
         ) {
 
             count++;
 
         }
-
     }
 
 
     /*
-       DEGETUL MARE
+       Thumb aproximativ
     */
 
-    const thumbTip =
-        hand[4];
-
-    const thumbJoint =
-        hand[3];
-
-    const indexBase =
-        hand[5];
-
-
-    const tipDistance =
+    const thumbDistance =
         Math.abs(
-            thumbTip.x -
-            indexBase.x
+            hand[4].x -
+            hand[5].x
         );
 
 
     const jointDistance =
         Math.abs(
-            thumbJoint.x -
-            indexBase.x
+            hand[3].x -
+            hand[5].x
         );
 
 
     if (
-        tipDistance >
+        thumbDistance >
         jointDistance
     ) {
 
@@ -793,313 +636,267 @@ function countFingers(hand) {
 }
 
 
-/* ==========================
-   FPS
-========================== */
+/* ==============================
+   AI UPDATE
+================================ */
 
-function updateFPS(now) {
+function updateAI(now) {
 
-    frameCounter++;
+    /*
+       Alternăm:
 
+       update 1 = FACE
+       update 2 = HAND
+       update 3 = FACE
+       update 4 = HAND
 
-    if (
-        now -
-        lastFPSTime >=
-        1000
-    ) {
-
-        fpsText.textContent =
-            "FPS: " +
-            frameCounter;
-
-
-        frameCounter = 0;
-
-        lastFPSTime =
-            now;
-
-    }
-}
+       Nu mai rulăm ambele modele
+       în același frame.
+    */
 
 
-/* ==========================
-   LOOP PRINCIPAL
-========================== */
+    if (runFaceNext) {
 
-function render() {
-
-    const now =
-        performance.now();
-
-
-    if (
-
-        video.readyState >= 2 &&
-
-        faceLandmarker &&
-
-        handLandmarker
-
-    ) {
-
-        resizeCanvas();
-
-
-        if (
-            video.currentTime !==
-            lastVideoTime
-        ) {
-
-            lastVideoTime =
-                video.currentTime;
-
-
-            /*
-               ȘTERGE FRAME-UL VECHI
-            */
-
-            ctx.clearRect(
-
-                0,
-                0,
-
-                canvas.width,
-                canvas.height
-
+        const result =
+            faceLandmarker
+            .detectForVideo(
+                video,
+                now
             );
 
 
-            /*
-               FACE AI
-            */
+        if (
+            result.faceLandmarks &&
+            result.faceLandmarks.length
+        ) {
 
-            const faceResult =
-                faceLandmarker
-                .detectForVideo(
+            cachedFace =
+                result.faceLandmarks[0];
 
-                    video,
+            faceEl.textContent =
+                "FACE: LOCKED";
 
-                    now
+        }
 
-                );
+        else {
 
+            cachedFace =
+                null;
 
-            /*
-               HAND AI
-            */
+            faceEl.textContent =
+                "FACE: SEARCHING";
 
-            const handResult =
-                handLandmarker
-                .detectForVideo(
+        }
 
-                    video,
+    }
 
-                    now
+    else {
 
-                );
+        const result =
+            handLandmarker
+            .detectForVideo(
+                video,
+                now
+            );
 
 
-            /* ==================
-               FACE
-            ================== */
+        cachedHands =
+            result.landmarks || [];
 
-            if (
 
-                faceResult
-                    .faceLandmarks &&
+        handsEl.textContent =
+            "HANDS: " +
+            cachedHands.length;
 
-                faceResult
-                    .faceLandmarks
-                    .length > 0
 
-            ) {
+        let total = 0;
 
-                drawFace(
 
-                    faceResult
-                        .faceLandmarks[0]
+        for (
+            const hand
+            of cachedHands
+        ) {
 
-                );
+            total +=
+                countFingers(hand);
 
+        }
 
-                faceStatus.textContent =
-                    "FACE: LOCKED";
 
+        fingersEl.textContent =
+            "FINGERS: " +
+            total;
 
-                statusText.textContent =
-                    "● SCAN LOCKED";
 
+        if (total === 5) {
 
-                statusText.style.color =
-                    "#00ff9d";
+            messageEl.textContent =
+                "PALM DETECTED";
 
-            }
+        }
 
-            else {
+        else if (total > 0) {
 
-                faceStatus.textContent =
-                    "FACE: SEARCHING";
+            messageEl.textContent =
+                "GESTURE " +
+                total;
 
+        }
 
-                statusText.textContent =
-                    "● SEARCHING";
+        else {
 
-
-                statusText.style.color =
-                    "#ff375f";
-
-            }
-
-
-            /* ==================
-               HANDS
-            ================== */
-
-            let totalFingers = 0;
-
-
-            if (
-
-                handResult.landmarks &&
-
-                handResult.landmarks
-                    .length > 0
-
-            ) {
-
-
-                for (
-                    const hand
-                    of handResult.landmarks
-                ) {
-
-                    drawHand(hand);
-
-
-                    totalFingers +=
-                        countFingers(hand);
-
-                }
-
-
-                handStatus.textContent =
-                    "HANDS: " +
-                    handResult
-                        .landmarks
-                        .length;
-
-            }
-
-            else {
-
-                handStatus.textContent =
-                    "HANDS: 0";
-
-            }
-
-
-            fingerText.textContent =
-                "FINGERS: " +
-                totalFingers;
-
-
-            /* ==================
-               GESTURI
-            ================== */
-
-            if (
-                totalFingers === 10
-            ) {
-
-                message.textContent =
-                    "FULL HAND SCAN";
-
-            }
-
-            else if (
-                totalFingers === 5
-            ) {
-
-                message.textContent =
-                    "PALM DETECTED";
-
-            }
-
-            else if (
-                totalFingers > 0
-            ) {
-
-                message.textContent =
-                    "GESTURE " +
-                    totalFingers;
-
-            }
-
-            else {
-
-                message.textContent =
-                    "SCAN PERFORMING";
-
-            }
-
-
-            updateFPS(now);
+            messageEl.textContent =
+                "SCAN PERFORMING";
 
         }
 
     }
 
 
-    requestAnimationFrame(
-        render
-    );
+    runFaceNext =
+        !runFaceNext;
 
+
+    aiFrames++;
 }
 
 
-/* ==========================
+/* ==============================
+   FPS COUNTER
+================================ */
+
+function updateFPS(now) {
+
+    displayFrames++;
+
+
+    if (
+        now - fpsTimer >=
+        1000
+    ) {
+
+        displayFPSEl.textContent =
+            "DISPLAY: " +
+            displayFrames +
+            " FPS";
+
+
+        aiFPSEl.textContent =
+            "AI: " +
+            aiFrames +
+            " UPDATES/S";
+
+
+        displayFrames = 0;
+        aiFrames = 0;
+
+        fpsTimer = now;
+
+    }
+}
+
+
+/* ==============================
+   RENDER 60 FPS
+================================ */
+
+function render(now) {
+
+    /*
+       AI nu rulează la fiecare
+       requestAnimationFrame.
+    */
+
+    if (
+        now - lastAITime >=
+        AI_INTERVAL
+    ) {
+
+        updateAI(now);
+
+        lastAITime = now;
+
+    }
+
+
+    /*
+       Canvas-ul poate continua
+       la refresh-ul monitorului.
+    */
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    /*
+       desenăm rezultatele salvate
+    */
+
+    drawFace(
+        cachedFace
+    );
+
+
+    for (
+        const hand
+        of cachedHands
+    ) {
+
+        drawHand(hand);
+
+    }
+
+
+    updateFPS(now);
+
+
+    requestAnimationFrame(
+        render
+    );
+}
+
+
+/* ==============================
    START
-========================== */
+================================ */
 
 async function start() {
 
     try {
 
-        statusText.textContent =
-            "● STARTING CAMERA";
-
-
-        message.textContent =
-            "CAMERA INITIALIZING";
+        statusEl.textContent =
+            "CAMERA...";
 
 
         await startCamera();
 
 
-        statusText.textContent =
-            "● LOADING AI";
+        statusEl.textContent =
+            "LOADING AI...";
 
 
-        message.textContent =
-            "LOADING AI MODELS";
+        messageEl.textContent =
+            "LOADING MODELS";
 
 
-        await loadAI();
+        await loadModels();
 
 
-        statusText.textContent =
-            "● AI READY";
+        statusEl.textContent =
+            "● SYSTEM ONLINE";
 
 
-        statusText.style.color =
-            "#00ff9d";
-
-
-        message.textContent =
+        messageEl.textContent =
             "SCAN PERFORMING";
 
 
-        render();
+        requestAnimationFrame(
+            render
+        );
 
     }
 
@@ -1108,19 +905,14 @@ async function start() {
         console.error(error);
 
 
-        statusText.textContent =
-            "● SYSTEM ERROR";
+        statusEl.textContent =
+            "ERROR";
 
 
-        statusText.style.color =
-            "#ff375f";
-
-
-        message.textContent =
+        messageEl.textContent =
             error.message;
 
     }
-
 }
 
 
